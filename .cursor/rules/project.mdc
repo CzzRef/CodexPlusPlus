@@ -1,0 +1,13 @@
+---
+description: CodexPlusPlus AI collaboration rules
+alwaysApply: true
+---
+
+<!-- codenote-agent-ecosystem:start -->
+# codex-plusplus shared project entry
+
+Load [../../AGENTS.md](../../AGENTS.md) once; it selects the local or portable core and the project owner. No independent reply, title or preflight protocol lives here.
+<!-- projection-sha256: c95e40390052b25aaa5557d57346468e040e1fe5490cae9fead5ed4f4182ad46 -->
+<!-- codenote-agent-ecosystem:end -->
+
+Project owners: vibe/rules/README.md, vibe/rules/documentation.md, vibe/specs/PROJECT_STATUS.md. CodeNote.
