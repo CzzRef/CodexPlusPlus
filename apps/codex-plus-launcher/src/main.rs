@@ -676,6 +676,9 @@ impl BridgeDataService for LauncherDataService {
         let settings = codex_plus_core::settings::SettingsStore::default()
             .load()
             .unwrap_or_default();
+        if settings.routing_mode == codex_plus_core::unified::RoutingMode::Unified {
+            return Ok(json!({"status":"skipped","message":"Unified routing preserves native task identities"}));
+        }
         let profile = settings.active_relay_profile();
         if !settings.relay_profiles_enabled
             || profile.relay_mode != codex_plus_core::settings::RelayMode::Official

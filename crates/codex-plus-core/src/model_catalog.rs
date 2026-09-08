@@ -39,6 +39,17 @@ pub async fn read_codex_model_catalog() -> Value {
     let settings_path = crate::paths::default_settings_path();
     if settings_path.exists() {
         if let Ok(settings) = SettingsStore::new(settings_path).load() {
+            if settings.routing_mode == crate::unified::RoutingMode::Unified {
+                return match crate::unified_runtime::gateway_control("/admin/unified", None).await {
+                    Ok(value) => {
+                        let rows = value["models"].as_array().cloned().unwrap_or_default();
+                        let models: Vec<Value> = rows.iter().map(|row| row["slug"].clone()).collect();
+                        let metadata: Map<String, Value> = rows.into_iter().filter_map(|row| row["slug"].as_str().map(|slug| (slug.to_string(), row.clone()))).collect();
+                        json!({"status":"ok","model_provider":"openai","codex_model_provider":"openai","provider_name":"Codex++ Unified","models":models,"modelMetadata":metadata,"sources":[],"responses_api":{"status":"ready"}})
+                    }
+                    Err(_) => json!({"status":"unavailable","models":[],"model_provider":"openai","message":"Unified gateway is unavailable"}),
+                };
+            }
             let profile = settings.active_relay_profile();
             let catalog = relay_profile_model_catalog_value(&home, &profile);
             if catalog

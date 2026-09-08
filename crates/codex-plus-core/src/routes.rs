@@ -144,6 +144,9 @@ pub async fn handle_bridge_request(
         }),
     );
     let result = match path {
+        "/unified/runtime" => crate::unified_runtime::command(payload.clone()).await,
+        "/unified/control" => crate::unified_runtime::gateway_control("/admin/unified", Some(payload.clone())).await,
+        "/unified/choices" => crate::unified_runtime::gateway_control("/admin/unified", None).await.map(|value| json!({"status":"ok","data":value})),
         "/settings/get" => settings_value(&ctx, ctx.settings.get_settings().await).await,
         "/settings/set" => {
             settings_value(&ctx, ctx.settings.set_settings(payload.clone()).await).await
@@ -316,7 +319,8 @@ impl BridgeSettingsService for CoreSettingsService {
         self.store.load()
     }
 
-    async fn set_settings(&self, payload: Value) -> anyhow::Result<BackendSettings> {
+    async fn set_settings(&self, mut payload: Value) -> anyhow::Result<BackendSettings> {
+        if let Some(fields) = payload.as_object_mut() { fields.remove("routingMode"); fields.remove("unified"); }
         self.store.update(payload)
     }
 

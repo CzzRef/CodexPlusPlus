@@ -346,7 +346,7 @@ where
     let result: anyhow::Result<LaunchHandle> = async {
         let home = crate::relay_config::default_codex_home_dir();
         hooks.cleanup_unsupported_config()?;
-        if settings.provider_sync_enabled {
+        if settings.provider_sync_enabled && settings.routing_mode != crate::unified::RoutingMode::Unified {
             crate::codex_app_state::capture_app_state_snapshot_nonfatal(&home, "launcher.before");
             hooks.run_provider_sync().await?;
             crate::codex_app_state::sync_app_state_after_provider_switch_nonfatal(
@@ -354,7 +354,8 @@ where
                 "launcher.after_provider_sync",
             );
         }
-        if hooks.has_pending_remote_control_session_recoveries()
+        if settings.routing_mode != crate::unified::RoutingMode::Unified
+            && hooks.has_pending_remote_control_session_recoveries()
             && hooks.remote_control_session_recovery_is_safe_to_run()
         {
             hooks.run_remote_control_session_recovery().await?;
@@ -514,7 +515,7 @@ where
 }
 
 fn relay_protocol_proxy_enabled(settings: &BackendSettings) -> bool {
-    settings.active_relay_uses_protocol_proxy()
+    settings.routing_mode == crate::unified::RoutingMode::Unified || settings.active_relay_uses_protocol_proxy()
 }
 
 fn remote_control_provider_proxy_enabled(settings: &BackendSettings) -> bool {
@@ -665,6 +666,7 @@ impl LaunchHooks for DefaultLaunchHooks {
     }
 
     async fn apply_active_relay_profile(&self, settings: &BackendSettings) -> anyhow::Result<()> {
+        if settings.routing_mode == crate::unified::RoutingMode::Unified { return Ok(()); }
         if !settings.relay_profiles_enabled {
             return Ok(());
         }
@@ -804,6 +806,7 @@ impl LaunchHooks for DefaultLaunchHooks {
         settings: &BackendSettings,
         extra_args: &[String],
     ) -> anyhow::Result<CodexLaunch> {
+        crate::unified_runtime::ensure_started(settings, crate::protocol_proxy::DEFAULT_PROTOCOL_PROXY_PORT).await?;
         let native_menu_localization_enabled = settings.codex_app_native_menu_localization;
         let native_menu_inspector_port =
             native_menu_localization_enabled.then(|| select_native_menu_inspector_port(debug_port));
@@ -1038,6 +1041,9 @@ impl LaunchHooks for DefaultLaunchHooks {
     }
 
     async fn shutdown_helper(&self, _helper_port: u16) {
+        while crate::unified_runtime::stop(true).await.is_err() {
+            tokio::time::sleep(std::time::Duration::from_secs(2)).await;
+        }
         if let Some(runtime) = self.bridge_watchdog.lock().await.take() {
             let _ = runtime.shutdown.send(());
             let _ = runtime.task.await;
@@ -1127,6 +1133,31 @@ async fn handle_helper_connection(
         }),
     );
 
+    let unified_internal = path.starts_with("/internal/unified/");
+    if unified_internal {
+        let token = std::fs::read_to_string(crate::unified::profile_dir().join("control-token")).unwrap_or_default();
+        let authorization = header_value_from_headers(&request_headers, "authorization").unwrap_or_default();
+        let settings = crate::settings::SettingsStore::default().load()?;
+        if token.len() < 32 || authorization != format!("Bearer {}", token.trim()) || settings.routing_mode != crate::unified::RoutingMode::Unified {
+            write_http_response(&mut stream, "401 Unauthorized", "application/json", br#"{"error":"Unauthorized managed gateway"}"#).await?;
+            return Ok(());
+        }
+        if path == "/internal/unified/manifest" && method == "GET" {
+            let body = serde_json::to_vec(&crate::unified::public_manifest(&settings)?)?;
+            write_http_response(&mut stream, "200 OK", "application/json", &body).await?;
+            return Ok(());
+        }
+        if path == "/internal/unified/cancel" && method == "POST" {
+            let body: serde_json::Value = serde_json::from_slice(&request.body)?;
+            crate::unified::cancel_request(body["requestId"].as_str().unwrap_or(""))?;
+            write_http_response(&mut stream, "200 OK", "application/json", br#"{"status":"cancelled"}"#).await?;
+            return Ok(());
+        }
+        if path != "/internal/unified/responses" || method != "POST" {
+            write_http_response(&mut stream, "404 Not Found", "application/json", b"{}").await?;
+            return Ok(());
+        }
+    }
     if crate::protocol_proxy::is_audio_transcriptions_proxy_path(path) && method == "POST" {
         return handle_audio_transcriptions_proxy_connection(
             &mut stream,
@@ -1161,7 +1192,7 @@ async fn handle_helper_connection(
         stream.shutdown().await?;
         return Ok(());
     }
-    if crate::protocol_proxy::is_responses_proxy_path(path) && method == "POST" {
+    if (crate::protocol_proxy::is_responses_proxy_path(path) || unified_internal) && method == "POST" {
         let request_body = match decode_protocol_proxy_request_body(
             &request.body,
             request_content_encoding.as_deref(),
@@ -1190,15 +1221,31 @@ async fn handle_helper_connection(
                 return Ok(());
             }
         };
-        return handle_protocol_proxy_connection(
+        let explicit = if unified_internal {
+            let profile_id = header_value_from_headers(&request_headers, "x-cpp-profile-id").unwrap_or_default();
+            let headers = ["x-codex-turn-metadata", "session_id", "conversation_id", "x-client-request-id", "x-codex-beta-features", "x-cpp-manifest-revision"].iter().filter_map(|name| header_value_from_headers(&request_headers, name).map(|v| (name.to_string(), v))).collect::<Vec<_>>();
+            Some((profile_id, headers))
+        } else { None };
+        let registration = if unified_internal {
+            let id = header_value_from_headers(&request_headers, "x-cpp-request-id").unwrap_or_default();
+            Some(crate::unified::register_request(&id)?)
+        } else { None };
+        let operation = handle_protocol_proxy_connection(
             &mut stream,
             &request_body,
             request_user_agent.as_deref(),
             method,
             path,
             remote_addr_text,
-        )
-        .await;
+            explicit,
+        );
+        if let Some((_guard, registration)) = registration {
+            match futures_util::future::Abortable::new(operation, registration).await {
+                Ok(result) => return result,
+                Err(_) => { stream.shutdown().await?; return Ok(()); }
+            }
+        }
+        return operation.await;
     }
     let request_body = String::from_utf8_lossy(&request.body);
     if crate::protocol_proxy::is_chat_completions_proxy_path(path) && method == "POST" {
@@ -1536,14 +1583,19 @@ async fn handle_protocol_proxy_connection(
     method: &str,
     path: &str,
     remote_addr_text: Option<String>,
+    explicit: Option<(String, Vec<(String, String)>)>,
 ) -> anyhow::Result<()> {
     let request_json = serde_json::from_str::<serde_json::Value>(request_body).ok();
-    let upstream = match crate::protocol_proxy::open_responses_proxy_request_for_path(
-        request_body,
-        request_user_agent,
-        path,
-    )
-    .await
+    let result = if let Some((profile_id, headers)) = explicit {
+        let revision = headers.iter().find(|(name, _)| name == "x-cpp-manifest-revision").map(|(_, value)| value.as_str()).unwrap_or("");
+        match crate::unified::settings_for_revision(revision) {
+            Ok(snapshot) => crate::protocol_proxy::open_explicit_responses_request(request_body, &snapshot, &profile_id, request_user_agent, &headers).await,
+            Err(error) => Err(error),
+        }
+    } else {
+        crate::protocol_proxy::open_responses_proxy_request_for_path(request_body, request_user_agent, path).await
+    };
+    let upstream = match result
     {
         Ok(upstream) => upstream,
         Err(error) => {
@@ -1594,11 +1646,8 @@ async fn handle_protocol_proxy_connection(
         if upstream.wire_api == crate::protocol_proxy::UpstreamWireApi::Responses {
             let mut bytes_stream = upstream.response.bytes_stream();
             while let Some(chunk) = bytes_stream.next().await {
-                if let Ok(bytes) = chunk {
-                    stream.write_all(&bytes).await?;
-                } else {
-                    break;
-                }
+                let bytes = chunk.context("Responses upstream stream interrupted")?;
+                stream.write_all(&bytes).await?;
             }
             log_helper_response(
                 "helper.protocol_proxy_stream_ok",

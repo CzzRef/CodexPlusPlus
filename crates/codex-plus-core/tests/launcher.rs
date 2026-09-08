@@ -1249,9 +1249,9 @@ async fn a_permanently_busy_protocol_proxy_port_reports_what_the_user_should_do(
     );
 }
 
-/// 普通 helper 端口在上面已经挑过空闲的了，占用说明是别的问题，不该白等六秒。
+/// macOS 允许旧 helper 交还端口；其他平台的普通 helper 不等待。
 #[tokio::test]
-async fn a_busy_floating_helper_port_fails_immediately_without_waiting() {
+async fn a_busy_floating_helper_port_follows_the_platform_retry_policy() {
     let temp = tempfile::tempdir().unwrap();
     let app_dir = temp.path().join("Codex.app");
     std::fs::create_dir_all(&app_dir).unwrap();
@@ -1279,7 +1279,7 @@ async fn a_busy_floating_helper_port_fails_immediately_without_waiting() {
             .iter()
             .filter(|event| event.starts_with("start-helper-busy:"))
             .count(),
-        1
+        if cfg!(target_os = "macos") { 31 } else { 1 }
     );
 }
 
