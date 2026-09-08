@@ -18,6 +18,8 @@
 
 Codex++ 是面向 OpenAI Codex / ChatGPT 桌面应用的外部启动器与管理工具。它通过 Chromium DevTools Protocol 和本地辅助服务提供供应商切换、协议转换、会话管理与界面增强，不修改官方应用的 `app.asar`，也不向安装目录写入补丁文件。
 
+此开发分支包含 macOS arm64 的[统一模型 V0.1](docs/specs/2026-09-08-ccw-unified.md)：在同一个模型列表中接入官方、已有 API 供应商与 ChatGPT Web。默认仍使用原有路由；试用前请阅读[组件导入与验收步骤](docs/unified-routing.md)。真实账号、Full MCP 和 Voice 验收状态以该文档引用的验证记录为准。
+
 ## 快速使用
 
 从 [GitHub Releases](https://github.com/BigPizzaV3/CodexPlusPlus/releases) 下载最新版安装包：
