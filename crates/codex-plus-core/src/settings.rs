@@ -372,6 +372,10 @@ impl Default for DreamSkinThemeConfig {
 
 #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub struct BackendSettings {
+    #[serde(rename = "routingMode", default)]
+    pub routing_mode: crate::unified::RoutingMode,
+    #[serde(default)]
+    pub unified: crate::unified::UnifiedSettings,
     #[serde(rename = "codexAppPath", default)]
     pub codex_app_path: String,
     #[serde(rename = "codexExtraArgs", default)]
@@ -565,6 +569,8 @@ pub struct BackendSettings {
 impl Default for BackendSettings {
     fn default() -> Self {
         Self {
+            routing_mode: crate::unified::RoutingMode::Legacy,
+            unified: crate::unified::UnifiedSettings::default(),
             codex_app_path: String::new(),
             codex_extra_args: Vec::new(),
             provider_sync_enabled: false,

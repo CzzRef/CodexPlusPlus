@@ -290,6 +290,7 @@ pub fn ensure_active_protocol_proxy_config_in_home(
     home: &Path,
     settings: &BackendSettings,
 ) -> anyhow::Result<bool> {
+    if settings.routing_mode == crate::unified::RoutingMode::Unified || crate::unified::route_is_owned(home) { return Ok(false); }
     let profile = settings.active_relay_profile();
     let transport_uses_proxy = settings.active_relay_transport_uses_protocol_proxy();
     let openai_identity_uses_proxy = settings.active_relay_session_provider()
@@ -447,6 +448,7 @@ pub fn apply_relay_files_to_home(
     config_contents: &str,
     auth_contents: &str,
 ) -> anyhow::Result<RelayApplyResult> {
+    crate::unified::guard_legacy_writer(home)?;
     if config_contents.trim().is_empty() {
         anyhow::bail!("config.toml 内容不能为空");
     }
@@ -495,6 +497,7 @@ pub fn apply_relay_profile_files_to_home_with_context(
     profile: &RelayProfile,
     common_config_contents: &str,
 ) -> anyhow::Result<RelayApplyResult> {
+    crate::unified::guard_legacy_writer(home)?;
     let selected_common = if profile.use_common_config {
         prepare_common_config_for_apply(common_config_contents)?
     } else {
@@ -523,6 +526,7 @@ pub fn apply_relay_profile_to_home_with_switch_rules(
     profile: &RelayProfile,
     common_config_contents: &str,
 ) -> anyhow::Result<RelayApplyResult> {
+    crate::unified::guard_legacy_writer(home)?;
     let selected_common = if profile.use_common_config {
         prepare_common_config_for_apply(common_config_contents)?
     } else {
@@ -557,6 +561,7 @@ pub fn apply_relay_profile_config_to_home_with_context(
     profile: &RelayProfile,
     common_config_contents: &str,
 ) -> anyhow::Result<RelayApplyResult> {
+    crate::unified::guard_legacy_writer(home)?;
     let selected_common = if profile.use_common_config {
         prepare_common_config_for_apply(common_config_contents)?
     } else {
@@ -582,6 +587,7 @@ pub fn apply_relay_config_file_to_home(
     home: &Path,
     config_contents: &str,
 ) -> anyhow::Result<RelayApplyResult> {
+    crate::unified::guard_legacy_writer(home)?;
     let config_contents = config_contents
         .strip_prefix('\u{feff}')
         .unwrap_or(config_contents);
@@ -810,6 +816,7 @@ pub fn clear_relay_config_to_home_with_auth(
     home: &Path,
     auth_contents: Option<&str>,
 ) -> anyhow::Result<RelayApplyResult> {
+    crate::unified::guard_legacy_writer(home)?;
     std::fs::create_dir_all(home)?;
     let auth_bytes = match auth_contents {
         Some(contents) if !contents.trim().is_empty() => Some(contents.as_bytes().to_vec()),
@@ -2316,7 +2323,7 @@ fn is_codex_plus_managed_model_catalog(home: &Path, path: &str) -> bool {
                 .is_some_and(|byte| *byte == b'/')
 }
 
-fn sanitize_catalog_filename(id: &str) -> String {
+pub(crate) fn sanitize_catalog_filename(id: &str) -> String {
     id.chars()
         .map(|char| {
             if char.is_ascii_alphanumeric() || char == '-' || char == '_' {

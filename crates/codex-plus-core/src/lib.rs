@@ -84,3 +84,5 @@ pub fn windows_apply_codexplusplus_icon_to_process_window(
 pub fn windows_enumerate_processes() -> Vec<windows_integration::WindowsProcessInfo> {
     windows_integration::enumerate_processes()
 }
+
+pub mod unified;

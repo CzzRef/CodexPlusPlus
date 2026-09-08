@@ -21,6 +21,10 @@ pub fn switch_relay_profile_in_home(
     next_settings: BackendSettings,
     previous_active_relay_id: &str,
 ) -> anyhow::Result<RelaySwitchResult> {
+    crate::unified::guard_legacy_writer(home)?;
+    if next_settings.routing_mode == crate::unified::RoutingMode::Unified || store.load()?.routing_mode == crate::unified::RoutingMode::Unified {
+        anyhow::bail!("统一模式使用每个任务的模型列表；请先停用统一路由，再执行全局供应商切换。");
+    }
     let mut selected_settings = next_settings;
     if !selected_settings.relay_profiles_enabled {
         anyhow::bail!("供应商配置总开关已关闭，未写入 config.toml / auth.json。");

@@ -552,6 +552,35 @@ pub async fn open_responses_proxy_request_with_settings_for_path(
         .await
 }
 
+/// Executes one explicit profile. Selection/failover belongs to the managed gateway.
+pub async fn open_explicit_responses_request(
+    body: &str,
+    settings: &crate::settings::BackendSettings,
+    profile_id: &str,
+    original_user_agent: Option<&str>,
+    identity_headers: &[(String, String)],
+) -> anyhow::Result<UpstreamProxyResponse> {
+    let mut request_json: Value = serde_json::from_str(body)?;
+    let model = request_json["model"].as_str().ok_or_else(|| anyhow::anyhow!("Explicit model is required"))?;
+    let relay = crate::unified::explicit_profile(settings, profile_id, model)?;
+    validate_upstream(&relay)?;
+    request_json["model"] = json!(relay.model);
+    let is_stream = request_json["stream"].as_bool().unwrap_or(false);
+    let (endpoint, upstream_body, wire_api) = upstream_request_parts(&relay, request_json, "/responses").await?;
+    let mut builder = upstream_request_builder(
+        crate::http_client::proxied_client(&effective_user_agent(&relay.user_agent, original_user_agent))?,
+        &endpoint, &relay, is_stream, &upstream_body,
+    );
+    for (name, value) in identity_headers {
+        if matches!(name.as_str(), "x-codex-turn-metadata" | "session_id" | "conversation_id" | "x-client-request-id" | "x-codex-beta-features") {
+            builder = builder.header(name, value);
+        }
+    }
+    let response = send_upstream_request_for_responses(builder, is_stream).await?;
+    let content_type = response.headers().get(reqwest::header::CONTENT_TYPE).and_then(|v| v.to_str().ok()).unwrap_or("").to_string();
+    Ok(UpstreamProxyResponse { status_code: response.status().as_u16(), is_stream: is_stream || content_type.contains("text/event-stream"), content_type, wire_api, response })
+}
+
 async fn open_responses_proxy_request_with_settings_and_user_agent(
     body: &str,
     settings: crate::settings::BackendSettings,
