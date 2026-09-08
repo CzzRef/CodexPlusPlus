@@ -3274,6 +3274,7 @@
   }
 
   function codexRemoteSessionActiveProfile() {
+    if (codexPlusBackendSettings.routingMode === "unified") return null;
     if (!codexPlusBackendSettings.relayProfilesEnabled) return null;
     const profiles = Array.isArray(codexPlusBackendSettings.relayProfiles)
       ? codexPlusBackendSettings.relayProfiles
@@ -4101,6 +4102,12 @@
       panel.hidden = panel.getAttribute("data-codex-plus-panel") !== tab;
     });
     if (tab === "userScripts") loadUserScripts();
+    if (tab === "unified") window.__codexPlusUnifiedPanel?.mount(document.querySelector('[data-codex-plus-panel="unified"]'), {
+      postJson,
+      threadId: () => validThreadScrollSessionKey(currentSessionRef().session_id),
+      currentModel: () => codexModelCatalog?.model,
+      refreshSettings: loadBackendSettings,
+    });
   }
 
   function setCodexPlusSidebarNavActive(active) {
@@ -4200,6 +4207,7 @@
         </div>
         <div class="codex-plus-tabs" role="tablist" aria-label="Codex++">
           <button type="button" class="codex-plus-tab-button" data-codex-plus-tab="home" data-active="true">主页</button>
+          <button type="button" class="codex-plus-tab-button" data-codex-plus-tab="unified" data-active="false">统一模型</button>
           <button type="button" class="codex-plus-tab-button" data-codex-plus-tab="userScripts" data-active="false">用户脚本</button>
           <button type="button" class="codex-plus-tab-button" data-codex-plus-tab="sponsor" data-active="false">推荐内容</button>
         </div>
@@ -4323,6 +4331,7 @@
               <button type="button" class="codex-plus-issue-button" data-codex-plus-issue="true">提出问题</button>
             </div>
           </div>
+          <div class="codex-plus-panel" data-codex-plus-panel="unified" hidden></div>
           <div class="codex-plus-panel" data-codex-plus-panel="userScripts" hidden>
             <div class="codex-plus-row" data-codex-user-scripts-section="true">
               <div>
@@ -6403,6 +6412,8 @@
     if (nextType === "browser-use-session-route-capture") {
       observeCodexRemoteSessionNotification({ type: nextType, params: nextPayload });
     }
+    const pendingUnifiedControl = window.__codexPlusUnifiedPanel?.beforeDispatch(message);
+    if (pendingUnifiedControl) return pendingUnifiedControl.then(() => dispatcher.__codexServiceTierOriginalDispatchMessage(nextType, nextPayload));
     return dispatcher.__codexServiceTierOriginalDispatchMessage(nextType, nextPayload);
   }
 

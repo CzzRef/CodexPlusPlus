@@ -635,8 +635,15 @@ pub fn launch_codex_plus(request: LaunchRequest) -> CommandResult<Value> {
     spawn_codex_plus_launch(request, "启动任务已在后台开始，可稍后查看概览状态。")
 }
 
+fn unified_mode_owns_runtime() -> bool {
+    codex_plus_core::unified::route_is_owned(&codex_plus_core::relay_config::default_codex_home_dir())
+        || SettingsStore::default().load().map_or(true, |settings| settings.routing_mode == codex_plus_core::unified::RoutingMode::Unified)
+}
+
 #[tauri::command]
 pub fn restart_codex_plus(request: LaunchRequest) -> CommandResult<Value> {
+    if unified_mode_owns_runtime() { return failed("请先在统一模型页面停用统一路由，等待活动任务排空后再重启 Codex++。", json!({})); }
+
     let Ok(_guard) = relay_switch_mutex().lock() else {
         return failed("供应商切换锁已损坏，请重启管理器后再试。", json!({}));
     };
@@ -1353,7 +1360,7 @@ pub fn load_settings() -> CommandResult<SettingsPayload> {
 
 #[tauri::command]
 pub fn save_settings(settings: BackendSettings) -> CommandResult<SettingsPayload> {
-    let settings = normalize_settings_before_save(settings);
+    let mut settings = normalize_settings_before_save(settings);
     let Ok(_guard) = relay_switch_mutex().lock() else {
         return failed(
             "供应商切换锁已损坏，请重启管理器后再试。",
@@ -1368,6 +1375,9 @@ pub fn save_settings(settings: BackendSettings) -> CommandResult<SettingsPayload
     };
     let store = SettingsStore::default();
     let previous = store.load().unwrap_or_default();
+    // Lifecycle fields have a dedicated owner; a stale manager form cannot toggle routing.
+    settings.routing_mode = previous.routing_mode;
+    settings.unified = previous.unified.clone();
     let dream_skin_enabled = settings.enhancements_enabled && settings.codex_app_dream_skin_enabled;
     if let Err(error) = codex_plus_core::dream_skin::sync_default_dream_skin_base_theme(
         dream_skin_enabled,
@@ -3053,6 +3063,8 @@ pub async fn apply_session_index_cleanup(
 
 #[tauri::command]
 pub async fn sync_providers_now(target_provider: Option<String>) -> CommandResult<Value> {
+    if unified_mode_owns_runtime() { return failed("统一模式保持任务身份，无需全局供应商同步。", json!({})); }
+
     let target_provider = target_provider
         .map(|value| value.trim().to_string())
         .filter(|value| !value.is_empty());
@@ -5056,6 +5068,10 @@ fn provider_doctor_recommendation(checks: &[ProviderDoctorCheck]) -> String {
 
 #[tauri::command]
 pub fn apply_relay_injection() -> CommandResult<RelayPayload> {
+    if unified_mode_owns_runtime() {
+        return failed("统一路由已接管连接；请在各任务的模型列表中选择供应商。", relay_payload(codex_plus_core::relay_config::default_relay_status(), None));
+    }
+
     let home = codex_plus_core::relay_config::default_codex_home_dir();
     let Ok(_guard) = relay_switch_mutex().lock() else {
         let status = codex_plus_core::relay_config::relay_status_from_home(&home);
@@ -5218,6 +5234,10 @@ fn apply_aggregate_relay_injection_to_home(
 
 #[tauri::command]
 pub fn apply_pure_api_injection() -> CommandResult<RelayPayload> {
+    if unified_mode_owns_runtime() {
+        return failed("统一路由已接管连接；请在各任务的模型列表中选择供应商。", relay_payload(codex_plus_core::relay_config::default_relay_status(), None));
+    }
+
     let home = codex_plus_core::relay_config::default_codex_home_dir();
     let Ok(_guard) = relay_switch_mutex().lock() else {
         let status = codex_plus_core::relay_config::relay_status_from_home(&home);
@@ -5338,6 +5358,10 @@ pub fn apply_pure_api_injection() -> CommandResult<RelayPayload> {
 
 #[tauri::command]
 pub fn clear_relay_injection() -> CommandResult<RelayPayload> {
+    if unified_mode_owns_runtime() {
+        return failed("统一路由已接管连接；请在各任务的模型列表中选择供应商。", relay_payload(codex_plus_core::relay_config::default_relay_status(), None));
+    }
+
     let home = codex_plus_core::relay_config::default_codex_home_dir();
     let Ok(_guard) = relay_switch_mutex().lock() else {
         let status = codex_plus_core::relay_config::relay_status_from_home(&home);

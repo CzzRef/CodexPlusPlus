@@ -5,7 +5,7 @@ use std::path::Path;
 
 use crate::settings::BackendSettings;
 
-const RENDERER_SCRIPT: &str = include_str!("../../../assets/inject/renderer-inject.js");
+const RENDERER_SCRIPT: &str = concat!(include_str!("../../../assets/inject/unified-panel.js"), "\n", include_str!("../../../assets/inject/renderer-inject.js"));
 #[cfg(windows)]
 const DREAM_TARGET_CSS: &str =
     include_str!("../../../assets/inject/upstream/dream-skin/windows/dream-skin.css");

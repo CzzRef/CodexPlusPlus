@@ -223,6 +223,8 @@ type RemotePluginMarketplaceResult = CommandResult<{
 }>;
 
 type BackendSettings = {
+  routingMode: "legacy" | "unified";
+  unified: { bunPath: string; runtimeEntry: string; electronPath: string; browserEntry: string; groupDefaults: Record<string, string> };
   codexAppPath: string;
   codexExtraArgs: string[];
   providerSyncEnabled: boolean;
@@ -917,6 +919,8 @@ const navigationSections: Array<{ label: string; routes: Route[]; placement?: "b
 ];
 
 const defaultSettings: BackendSettings = {
+  routingMode: "legacy",
+  unified: { bunPath: "", runtimeEntry: "", electronPath: "", browserEntry: "", groupDefaults: {} },
   codexAppPath: "",
   codexExtraArgs: [],
   providerSyncEnabled: false,
@@ -2710,6 +2714,10 @@ export function App() {
   };
 
   const switchRelayProfile = async (next: BackendSettings, previousActiveRelayId = settingsForm.activeRelayId) => {
+    if (next.routingMode === "unified") {
+      showNotice("统一路由已启用", "请在任务的模型列表中选择供应商；在此编辑并保存供应商配置即可。", "warning");
+      return;
+    }
     if (relaySwitching) {
       showNotice(t("供应商切换中"), t("上一次切换还没有完成，请稍后再试。"), "failed");
       return;
