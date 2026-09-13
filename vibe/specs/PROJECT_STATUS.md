@@ -6,11 +6,12 @@ Date: 2026-09-13
 ## Current Main Line
 
 - AI 规则初始化（2026-09-08，主检出 `czz-dev`）：官方 `project-rules` 首次投影已 apply；入口只路由到 CodeNote。任务卡见 [ai-rules-init](260908/1204-ai-rules-init/task-card.md)。
-- Unified V0.1（`codex/260908-ccw-unified`，配对 CCW）本地已提交、未合入 `czz-dev`、未推送。主目录观察见 [260908-ccw-unified](../../docs/worktree-control/260908-ccw-unified.md)。下一步是远端/上游更新；真实账号验收仍未跑。
+- `czz-dev` 已同步上游 `v1.3.0`（未推送）。
+- Unified V0.1 工作分支 `codex/260908-ccw-unified` 正在合入该 1.3.0；主目录观察见 [260908-ccw-unified](../../docs/worktree-control/260908-ccw-unified.md)。真实账号验收仍未跑。
 
 ## Current Focus
 
-Unified V0.1 is locally committed in the paired worktrees; the user will carry out real account testing later. See [the delivery record](260908/1421-ccw-unified/changes.md).
+Unified V0.1 is locally committed in the paired worktrees and is merging `czz-dev` v1.3.0. See [the delivery record](260908/1421-ccw-unified/changes.md).
 
 ## AI Rule Routing
 
@@ -23,7 +24,8 @@ Unified V0.1 is locally committed in the paired worktrees; the user will carry o
 | Task | Status | Authoritative Doc | Verification | Notes |
 | --- | --- | --- | --- | --- |
 | AI rules init | `implemented-local` | [task-card](260908/1204-ai-rules-init/task-card.md) | `audit_ai_rules.py --mode project` OK | CodeNote catalog 另仓未提交 |
-| Unified V0.1 | `local-committed / unpushed / not-integrated` | [requirements](260908/1421-ccw-unified/spec.md) · [control record](../../docs/worktree-control/260908-ccw-unified.md) | [local verification](260908/1421-ccw-unified/verify.md); account/Full MCP/Voice `not_run` | Child `codex/260908-ccw-unified` retained; lifecycle unmanaged |
+| Unified V0.1 | `local-committed / unpushed / not-integrated` | [requirements](260908/1421-ccw-unified/spec.md) · [control record](../../docs/worktree-control/260908-ccw-unified.md) | [local verification](260908/1421-ccw-unified/verify.md); account/Full MCP/Voice `not_run` | Child merging v1.3.0; lifecycle unmanaged |
+| Sync upstream 1.3.0 | `merged-local / unpushed` | `czz-dev` @ `839e4d0` | `codex-plus-core` 369 passed / 4 failed on czz-dev (settings default `tools` vs 空 map；vision timeout)；`settings.rs`/`vision.rs` 与 `upstream/main` 无 diff | 未推 origin |
 
 ## Governance Baseline
 

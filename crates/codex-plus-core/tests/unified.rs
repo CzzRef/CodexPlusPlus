@@ -16,7 +16,8 @@ fn manifest_is_credential_free_and_retains_scoped_model_capabilities() {
     let settings = BackendSettings { relay_profiles: vec![api("a", "https://example.test/v1"), api("b", "https://other.test/v1")],
         aggregate_relay_profiles: vec![AggregateRelayProfile { id: "group".into(), name: "Group".into(),
             session_provider: RelaySessionProvider::Openai, strategy: AggregateRelayStrategy::RequestRoundRobin,
-            members: vec![AggregateRelayMember { relay_id: "a".into(), weight: 1 }, AggregateRelayMember { relay_id: "b".into(), weight: 2 }] }],
+            members: vec![AggregateRelayMember { relay_id: "a".into(), weight: 1 }, AggregateRelayMember { relay_id: "b".into(), weight: 2 }],
+            routes: vec![] }],
         ..BackendSettings::default() };
     let manifest = public_manifest(&settings).unwrap();
     let serialized = manifest.to_string();
