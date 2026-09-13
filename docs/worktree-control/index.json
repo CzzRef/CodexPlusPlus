@@ -25,11 +25,11 @@
         "docs/specs/2026-09-08-ccw-unified.md"
       ],
       "cache_refs": [],
-      "observed_at": "2026-09-13T01:57:08.042682+00:00",
+      "observed_at": "2026-09-13T01:57:30.613660+00:00",
       "observed": {
         "branch": "codex/260908-ccw-unified",
         "head": "90e3a063a8aa7398062f78c9d1777e928d3739e6",
-        "target_head": "8b517b3c9f51206b957ed57e5e94ec8a56df7bf2",
+        "target_head": "bde159898b3a976c2291e9addb253895100273e3",
         "worktree": "dirty",
         "status_digest": "67d409bdfe6f69f11a5457adf62408b43ad1affa04b17f69d531e93754e8c136",
         "dirty_metadata_digest": "21dcdd21e147ad9b5a97190374321caa333a6f08d4ed8a305dd1f0bf50a7a5aa",
@@ -48,14 +48,14 @@
         "upstream": null,
         "upstream_head": null,
         "remote_observation": "no-upstream",
-        "target_only_commits": 2,
+        "target_only_commits": 3,
         "source_only_commits": 5,
         "lifecycle": {
           "state": "unmanaged",
           "digest": null
         }
       },
-      "marker": "1ae7a27fd3d61a19"
+      "marker": "c34f6d4a890bc3aa"
     }
   ]
 }
