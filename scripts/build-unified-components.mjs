@@ -15,7 +15,7 @@ if (process.platform !== "darwin" || process.arch !== "arm64") throw new Error("
 if (existsSync(output)) throw new Error("Choose a new output directory; existing artifacts are retained");
 const pkg = JSON.parse(readFileSync(join(ccw, "package.json"), "utf8"));
 const browserPkg = JSON.parse(readFileSync(join(ccw, "launcher/package.json"), "utf8"));
-if (pkg.version !== "5.0.5" || pkg.packageManager !== "bun@1.4.0" || browserPkg.devDependencies.electron !== "41.10.7") throw new Error("Paired component version pins differ from V0.1");
+if (pkg.version !== "5.0.6" || pkg.packageManager !== "bun@1.4.0" || browserPkg.devDependencies.electron !== "41.10.7") throw new Error("Paired component version pins differ from V0.1");
 function run(command, argv, cwd) {
   const result = spawnSync(command, argv, { cwd, stdio: "inherit", env: { ...process.env, ELECTRON_RUN_AS_NODE: undefined } });
   if (result.status !== 0) throw new Error(`Component build failed (${result.status ?? result.error?.code})`);

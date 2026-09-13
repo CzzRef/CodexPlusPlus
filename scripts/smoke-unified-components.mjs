@@ -25,7 +25,7 @@ const original = 'model = "official-fixture"\n[features]\nvoice = true\n';
 writeFileSync(join(codex, "config.toml"), original);
 const token = randomBytes(32).toString("hex");
 writeFileSync(join(profile, "control-token"), token, { mode: 0o600 });
-const manifest = { schemaVersion: 1, ccwVersion: "5.0.5", revision: "isolated-smoke",
+const manifest = { schemaVersion: 1, ccwVersion: "5.0.6", revision: "isolated-smoke",
   profiles: [{ id: "fixture", name: "Fixture", protocol: "responses", models: ["cpp/fixture/model"] }], groups: [],
   models: [{ slug: "cpp/fixture/model", supported_reasoning_levels: [{ effort: "high" }], cpp_route: { kind: "api", profileId: "fixture", model: "model" } }] };
 const checks = {}; const children = []; let descriptor; let base; let fixture;
@@ -75,7 +75,7 @@ try {
   await new Promise(accept => reservation.close(accept));
   base = `http://127.0.0.1:${gatewayPort}`;
   const launchFile = join(profile, "managed-launch.json");
-  writeFileSync(launchFile, JSON.stringify({ schemaVersion: 1, owner: "codex-plusplus", ccwVersion: "5.0.5", profileDir: profile,
+  writeFileSync(launchFile, JSON.stringify({ schemaVersion: 1, owner: "codex-plusplus", ccwVersion: "5.0.6", profileDir: profile,
     apiBase: `http://127.0.0.1:${apiPort}`, port: gatewayPort, subagentProtocol: "native",
     runtimeCommand: [components.settings.bunPath, components.settings.runtimeEntry] }), { mode: 0o600 });
   const gateway = start(components.settings.bunPath, [components.settings.runtimeEntry, "managed", "--config", launchFile]);
