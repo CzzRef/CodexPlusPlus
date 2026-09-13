@@ -6,7 +6,8 @@ Date: 2026-09-13
 ## Current Main Line
 
 - AI 规则初始化（2026-09-08，主检出 `czz-dev`）：官方 `project-rules` 首次投影已 apply；入口只路由到 CodeNote。任务卡见 [ai-rules-init](260908/1204-ai-rules-init/task-card.md)。
-- Unified V0.1（`codex/260908-ccw-unified`，配对 CCW）本地 5 批已提交、未合入 `czz-dev`、未推送。主目录观察见 [260908-ccw-unified](../../docs/worktree-control/260908-ccw-unified.md)。下一步是远端/上游更新；真实账号验收仍未跑。
+- `czz-dev` 已同步上游 `v1.3.0`（`193096b`，本地超前 origin 65，未推送）。
+- Unified V0.1 仍在 `codex/260908-ccw-unified`，未合入 1.3.0；与上游有 11 个代码文件双方都改。主目录观察见 [260908-ccw-unified](../../docs/worktree-control/260908-ccw-unified.md)。真实账号验收仍未跑。
 
 ## AI Rule Routing
 
@@ -19,7 +20,8 @@ Date: 2026-09-13
 | Task | Status | Authoritative Doc | Verification | Notes |
 | --- | --- | --- | --- | --- |
 | AI rules init | `implemented-local` | [task-card](260908/1204-ai-rules-init/task-card.md) | `audit_ai_rules.py --mode project` OK | CodeNote catalog 另仓未提交 |
-| Unified V0.1 | `local-committed / unpushed / not-integrated` | [control record](../../docs/worktree-control/260908-ccw-unified.md) | 798 tests + 9 macOS checks passed; account/Full MCP/Voice `not_run` | Child `codex/260908-ccw-unified` retained; lifecycle unmanaged |
+| Unified V0.1 | `local-committed / unpushed / not-integrated` | [control record](../../docs/worktree-control/260908-ccw-unified.md) | 798 tests + 9 macOS checks passed; account/Full MCP/Voice `not_run` | Child 未含 1.3.0；合入预览 11 文件冲突 |
+| Sync upstream 1.3.0 | `merged-local / unpushed` | `czz-dev` @ `193096b` | `codex-plus-core` 369 passed / 4 failed (settings default `tools` vs 空 map；vision connection_refused vs timeout)；`settings.rs`/`vision.rs` 与 `upstream/main` 无 diff | 未推 origin；未合入 unified 工作分支 |
 
 ## Governance Baseline
 
