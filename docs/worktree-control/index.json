@@ -1,0 +1,61 @@
+{
+  "schema": "worktree-control-observation/v1",
+  "control_branch": "czz-dev",
+  "records": [
+    {
+      "task_id": "260908-ccw-unified",
+      "branch": "codex/260908-ccw-unified",
+      "target_branch": "czz-dev",
+      "source_owner": "vibe/specs/260908/1421-ccw-unified/tasks.md",
+      "control_record": "docs/worktree-control/260908-ccw-unified.md",
+      "progress": "Locally committed in 5 batches; czz-dev has extra rules commits including Cursor entry alignment; child worktree dirty with nested CodeNote projection; account acceptance later",
+      "core_plan": "P1 config; P2 routing; P3 compaction; P4 turns; P5 Web/UI; P6 verification",
+      "verification": "Prior 798 affected tests and 9 macOS checks passed; child worktree currently dirty; account not_run",
+      "integration": "not_started",
+      "next_action": "Handle remote/upstream updates after this control index is on czz-dev; retain both source worktrees",
+      "retention": "retained",
+      "resume_condition": "Read the local commit delivery record, verification limits and RC2 trial guide before continuing",
+      "source_documents": [
+        "vibe/specs/260908/1421-ccw-unified/spec.md",
+        "vibe/specs/260908/1421-ccw-unified/plan.md",
+        "vibe/specs/260908/1421-ccw-unified/tasks.md",
+        "vibe/specs/260908/1421-ccw-unified/verify.md",
+        "vibe/specs/260908/1421-ccw-unified/changes.md",
+        "docs/unified-routing.md",
+        "docs/specs/2026-09-08-ccw-unified.md"
+      ],
+      "cache_refs": [],
+      "observed_at": "2026-09-13T01:57:30.613660+00:00",
+      "observed": {
+        "branch": "codex/260908-ccw-unified",
+        "head": "90e3a063a8aa7398062f78c9d1777e928d3739e6",
+        "target_head": "bde159898b3a976c2291e9addb253895100273e3",
+        "worktree": "dirty",
+        "status_digest": "67d409bdfe6f69f11a5457adf62408b43ad1affa04b17f69d531e93754e8c136",
+        "dirty_metadata_digest": "21dcdd21e147ad9b5a97190374321caa333a6f08d4ed8a305dd1f0bf50a7a5aa",
+        "source_documents": {
+          "vibe/specs/260908/1421-ccw-unified/spec.md": "c57ddb5ed640e53b1f2ce0bc990d114c05c00a9dacffd058cf1adbaf4dda6c98",
+          "vibe/specs/260908/1421-ccw-unified/plan.md": "08a4e5a4301c4d606126971cc80d29354f0a41bec5d2df8a14d8bd7e91f7b5e4",
+          "vibe/specs/260908/1421-ccw-unified/tasks.md": "43ff5507b1e040c2be9da82db4dd707167a9c69a300029090fdbccd99a347efa",
+          "vibe/specs/260908/1421-ccw-unified/verify.md": "50e89630b72d772a6df097c6536dee902a03b37f26c060e1515aad83693a290b",
+          "vibe/specs/260908/1421-ccw-unified/changes.md": "d3fb500453ce364cb0a9f44aa068dabe5cddbe8a7eea63ad97a90d6335c924c5",
+          "docs/unified-routing.md": "ea1070b29f269291f387fcac627c705170c6643effe3aa6c9a9e01af5e73e189",
+          "docs/specs/2026-09-08-ccw-unified.md": "34b074b05940bbfc4385f0f44331262ca4d06e30a7887679fff6cd033c1016c1"
+        },
+        "control_documents": {},
+        "control_record_digest": "3172f8d37aca8cb73b9f7935c943ed917378e9d45a3f73ffa0a3459ee8776079",
+        "cache_refs": [],
+        "upstream": null,
+        "upstream_head": null,
+        "remote_observation": "no-upstream",
+        "target_only_commits": 3,
+        "source_only_commits": 5,
+        "lifecycle": {
+          "state": "unmanaged",
+          "digest": null
+        }
+      },
+      "marker": "c34f6d4a890bc3aa"
+    }
+  ]
+}

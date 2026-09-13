@@ -1,11 +1,12 @@
 # CodexPlusPlus Project Status
 
 Tool: codex
-Date: 2026-09-08
+Date: 2026-09-13
 
 ## Current Main Line
 
-- AI 规则初始化（2026-09-08，主检出 `czz-dev`）：官方 `project-rules` 首次投影已 apply（16 个文件）；Cursor/Claude 短入口已补。任务卡见 [ai-rules-init](260908/1204-ai-rules-init/task-card.md)。
+- AI 规则初始化（2026-09-08，主检出 `czz-dev`）：官方 `project-rules` 首次投影已 apply；入口只路由到 CodeNote。任务卡见 [ai-rules-init](260908/1204-ai-rules-init/task-card.md)。
+- Unified V0.1（`codex/260908-ccw-unified`，配对 CCW）本地已提交、未合入 `czz-dev`、未推送。主目录观察见 [260908-ccw-unified](../../docs/worktree-control/260908-ccw-unified.md)。下一步是远端/上游更新；真实账号验收仍未跑。
 
 ## Current Focus
 
@@ -13,7 +14,7 @@ Unified V0.1 is locally committed in the paired worktrees; the user will carry o
 
 ## AI Rule Routing
 
-- Global master: [../../../../../../../CzzProj/CodeNote/AiRef/VibePractice/Vibe_Rules/VibeAi.md](../../../../../../../CzzProj/CodeNote/AiRef/VibePractice/Vibe_Rules/VibeAi.md)
+- Global master: [../../../../CzzProj/CodeNote/AiRef/VibePractice/Vibe_Rules/VibeAi.md](../../../../CzzProj/CodeNote/AiRef/VibePractice/Vibe_Rules/VibeAi.md)
 - Project documentation rules: [../rules/documentation.md](../rules/documentation.md)
 - Specs index: [README.md](README.md)
 
@@ -21,8 +22,8 @@ Unified V0.1 is locally committed in the paired worktrees; the user will carry o
 
 | Task | Status | Authoritative Doc | Verification | Notes |
 | --- | --- | --- | --- | --- |
-| Unified V0.1 | `local-committed / unpushed` | [requirements](260908/1421-ccw-unified/spec.md) | [local verification](260908/1421-ccw-unified/verify.md) | user will perform account acceptance later |
 | AI rules init | `implemented-local` | [task-card](260908/1204-ai-rules-init/task-card.md) | `audit_ai_rules.py --mode project` OK | CodeNote catalog 另仓未提交 |
+| Unified V0.1 | `local-committed / unpushed / not-integrated` | [requirements](260908/1421-ccw-unified/spec.md) · [control record](../../docs/worktree-control/260908-ccw-unified.md) | [local verification](260908/1421-ccw-unified/verify.md); account/Full MCP/Voice `not_run` | Child `codex/260908-ccw-unified` retained; lifecycle unmanaged |
 
 ## Governance Baseline
 
@@ -43,7 +44,8 @@ Unified V0.1 is locally committed in the paired worktrees; the user will carry o
 
 | Concern | Repository | Status Hub |
 | --- | --- | --- |
-| Rule kernel / catalog | CodeNote | [project-index.json](../../../../../../../CzzProj/CodeNote/vibe/knowledge/project-index.json#L1) |
+| Rule kernel / catalog | CodeNote | [project-index.json](../../../../CzzProj/CodeNote/vibe/knowledge/project-index.json) |
+| ChatGPT Web gateway (CCW) | codex-chatgpt-web | paired hub `CodexPlusPlus-worktrees/codex/260908-ccw-unified` |
 
 ## Next Update Trigger
 
