@@ -4,7 +4,7 @@
 
 ## 组件与入口
 
-先构建 Codex++ 启动器，再使用 `scripts/build-unified-components.mjs` 组装组件。脚本的 `--ccw-root` 指向配套 CCW 工作树，`--bun` 指向独立的 Bun 1.4.0，`--launcher` 指向本次编译的启动器，`--output` 必须是新目录。版本固定为 CCW 5.0.5、Bun 1.4.0、Electron 41.10.7；不会升级全局 Bun 或覆盖旧包。
+先构建 Codex++ 启动器，再使用 `scripts/build-unified-components.mjs` 组装组件。脚本的 `--ccw-root` 指向配套 CCW 工作树，`--bun` 指向独立的 Bun 1.4.0，`--launcher` 指向本次编译的启动器，`--output` 必须是新目录。版本固定为 CCW 5.0.6、Bun 1.4.0、Electron 41.10.7；不会升级全局 Bun 或覆盖旧包。
 
 包中包含 `bin/codex-plus-plus`、Bun 网关、Electron 浏览器、许可证及 `components.json`。清单保存四个组件的绝对路径和 SHA-256；移动目录后应重新生成清单。Electron 框架保留包内相对符号链接。
 

@@ -17,7 +17,7 @@ use toml_edit::{DocumentMut, Item};
 use crate::settings::{BackendSettings, RelayMode, RelayProfile};
 
 pub const CONTRACT_VERSION: u32 = 1;
-pub const CCW_VERSION: &str = "5.0.5";
+pub const CCW_VERSION: &str = "5.0.6";
 pub const GATEWAY_PORT: u16 = 17841;
 const JOURNAL: &str = "codex-plus-unified-route.json";
 const OWNED_KEYS: &[&str] = &["model_provider", "openai_base_url", "model_catalog_json", "model_context_window", "model_auto_compact_token_limit", "experimental_realtime_webrtc_call_base_url"];
